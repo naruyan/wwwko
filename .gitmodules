@@ -7,6 +7,6 @@
 [submodule "modules/orm"]
 	path = modules/orm
 	url = git://github.com/kohana/orm.git
-[submodule "modules/php-markdown"]
+[submodule "modules/php-markdown/classes"]
 	path = modules/php-markdown/classes
 	url = git@github.com:michelf/php-markdown.git
