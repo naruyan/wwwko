@@ -1,13 +1,13 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 
+use \Michelf\Markdown;
+
 class Controller_Welcome extends Controller_Global {
 
 	public function action_index()
-	{
-        $this->response->body(Route::get('members')->uri(array(
-            'action' => 'signup',
-            'term' => '64',
-        'id' => '5',)));
+    {
+        $o_output = Markdown::defaultTransform(file_get_contents("LICENSE.md"));
+        $this->response->body($o_output);
 	}
 
 } // End Welcome
