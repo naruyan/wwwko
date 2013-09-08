@@ -88,7 +88,7 @@ if (isset($_SERVER['KOHANA_ENV']))
 }
 else
 {
-    Kohana::$environment = Kohana::DEVELOPMENT;
+    Kohana::$environment = Kohana::PRODUCTION;
 }
 
 /**
@@ -109,6 +109,8 @@ else
 Kohana::init(array(
 	'base_url'   => '/cm/',
     'index_file' => FALSE,
+    'profile'    => Kohana::$environment !== Kohana::PRODUCTION,
+    'caching'    => Kohana::$environment === Kohana::PRODUCTION,    
 ));
 
 /**

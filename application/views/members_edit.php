@@ -20,6 +20,8 @@
     <div><input type="submit" value="Edit"></div>
 </form>
 <form action="<?php echo $back ?>"><input type="submit" value="Back"></form>
+<br /><br />
+<form action="<?php echo $delete ?>"><input type="submit" value="Delete"></form>
 </div>
 </body>
 </html>

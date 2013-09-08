@@ -234,6 +234,13 @@ class Controller_Members extends Controller_Global
             'term' => $o_term,
             'id' => $u_id,
         ));
+
+        $a_delete = Route::url("members", array(
+            'action' => 'delete',
+            'term' => $o_term,
+            'id' => $u_id,
+        ));
+
         $this->session->set('redirect_controller', 'members');
         $this->session->set('redirect_param', array('action' => 'list'));
         $a_back = Route::url($this->session->get('redirect_controller'), 
@@ -248,6 +255,7 @@ class Controller_Members extends Controller_Global
             ->bind('status', $o_status)
             ->bind('statuses', $o_statuses)
             ->bind('target', $a_target)
+            ->bind('delete', $a_delete)
             ->bind('back', $a_back);
 
         $this->response->body($view);
@@ -286,6 +294,40 @@ class Controller_Members extends Controller_Global
             {
                 $member->save();
                 $o_notice = Kohana::message('members', 'edit_success');
+            }
+            catch (ORM_Validation_Exception $e)
+            {
+                $o_errors = $e->errors('orm');
+                $o_notice = "<ul><li>" . implode("</li><li>", $o_errors) . "</li></ul>";
+            }
+        }
+
+        $view = View::factory('redirect')
+            ->bind('redirect', $a_redirect)
+            ->bind('notice', $o_notice);
+
+        $this->response->body($view);
+    }
+
+    public function action_delete()
+    {
+        // Process the redirect
+        $a_redirect = Route::url($this->session->get('redirect_controller'), 
+            $this->session->get('redirect_param'));
+
+        $u_id = $this->request->param('id');
+        $member = ORM::factory('Member', $u_id);
+
+        if (!$this->user->is_exec() || !$member->loaded())
+        {
+            $o_notice = Kohana::message('members', 'edit_fail');
+        }
+        else
+        {
+            try
+            {
+                $member->delete();
+                $o_notice = Kohana::message('members', 'delete_success');
             }
             catch (ORM_Validation_Exception $e)
             {

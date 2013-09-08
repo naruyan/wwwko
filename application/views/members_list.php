@@ -5,7 +5,15 @@
 <body>
 <h2><?php echo $term ?> Member List</h2>
 <table>
-<?php foreach ($member_list as $member) { ?>
+    <tr>
+        <th>Number</th>
+        <th>Name</th>
+        <th>E-Mail</th>
+        <th><?php if ($is_exec) echo 'Active' ?></th>
+        <th></th>
+        <th></th>
+    </tr>
+<?php foreach ($member_list as $member) { if ($member['active'] || $is_exec) { ?>
     <tr>
         <td><?php echo $member['number'] ?></td>
         <td><?php echo $member['name'] ?></td>
@@ -19,7 +27,7 @@
         <a href="<?php echo $member["activate_url"] ?>">Activate</a>
         <?php } ?></td>
     </tr>
-<?php } ?>
+<?php }} ?>
 </table>
 <div><a href="<?php echo $signup_url ?>">Sign Up</a></div>
 <div><form action="<?php echo $change_terms_url ?>" method="post">
