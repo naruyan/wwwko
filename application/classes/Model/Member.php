@@ -16,6 +16,21 @@ class Model_Member extends ORM
         ),
     );
 
+    protected $_has_many = array(
+        'sales' => array(
+            'model'         => 'Sale',
+            'foreign_key'   => 'seller',
+        ),
+        'purchases' => array(
+            'model'         => 'Sale',
+            'foreign_key'   => 'buyer',
+        ),
+        'receipts' = array(
+            'model'         => 'Receipt',
+            'foreign_key'   => 'buyer_id',
+        ),
+    );
+
     public function rules()
     {
         return array(

@@ -8,8 +8,8 @@
  * @author      Jonathan Lai
  * @TODO        Add flashing of form data back
  */
-class Controller_Members extends Controller_Global {
-
+class Controller_Members extends Controller_Global 
+{
     /**
      * @var Club term of interest
      */

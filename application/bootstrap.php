@@ -147,6 +147,12 @@ Route::set('members', 'members(/<action>(/<term>(/<id>)))')
         'action'        => 'list',
     ));
 
+Route::set('pages', 'pages(/<name>(/<action>))')
+    ->defaults(array(
+        'controller'    => 'pages',
+        'action'        => 'view',
+    ));
+
 Route::set('default', '(<controller>(/<action>(/<id>)))')
 	->defaults(array(
 		'controller' => 'welcome',
