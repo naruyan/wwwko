@@ -25,7 +25,7 @@ class Model_Member extends ORM
             'model'         => 'Sale',
             'foreign_key'   => 'buyer',
         ),
-        'receipts' = array(
+        'receipts' => array(
             'model'         => 'Receipt',
             'foreign_key'   => 'buyer_id',
         ),
