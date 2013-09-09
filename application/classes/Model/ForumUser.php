@@ -39,28 +39,27 @@ class Model_ForumUser extends Model_Database
      * Checks the Cookies to determine if they are consistent with being logged in
      * Then checks the database the validate their contents
      *
-     * @param   Request     $request    Request containing the session information to be used
-     * @param   $db                     Database information, default NULL
      * @return  void
      */
-    public function load(Request $request, $db = NULL)
+    public function load()
     {
         // Attempt to get the Session ID
-        $u_sid = $request->cookie('sid');
+        $u_sid = $_COOKIE['sid'];
         $this->_groups = array();
 
         if ($u_sid)
         {
             // Attempt to load the session from the database
-            $result = DB::select()->from('sessions')->where('sid', '=', $u_sid)->and_where('ip', '=', $requeust->client_ip)->limit(1)->execute('forum');
+            $result = DB::select()->from('sessions')->where('sid', '=', $u_sid)->and_where('ip', '=', Request::$client_ip)->limit(1)->execute('forum');
             
             if ($result->count() == 1)
             {
-                $u_mybbuser = $request->cookie('mybbuser');
+                $u_mybbuser = $_COOKIE['mybbuser'];
                 if ($u_mybbuser)
                 {
                     $u_logon = explode("_", $u_mybbuser, 2);
-                    if ($u_logon[0] == $result->current()['uid'])
+                    $current = $result->current();
+                    if ($u_logon[0] == $current['uid'])
                     {
                         $valid = $this->load_user(intval($u_logon[0]), Database::instance('forum')->escape($u_logon[1]));
                         if ($valid)

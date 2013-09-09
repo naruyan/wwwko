@@ -30,13 +30,15 @@ abstract class Controller_Global extends Controller
     public function before()
     {
         $this->user = Model::factory('ForumUser');
-        $this->user->load($this->request);
+        $this->user->load();
 
         if (Kohana::$environment == Kohana::DEVELOPMENT && !$this->user->is_logged_in())
         {
             $debug = Kohana::$config->load('debug');
-            $this->user->debug_user($debug->get('userid')[$debug->get('login_level')], 
-                $debug->get('passkey')[$debug->get('login_level')]);
+            $debug_user = $debug->get('userid');
+            $debug_passkey = $debug->get('passkey')
+            $this->user->debug_user($debug_user[$debug->get('login_level')], 
+                $debug_passkey[$debug->get('login_level')]);
         }        
         
         $this->settings = array();

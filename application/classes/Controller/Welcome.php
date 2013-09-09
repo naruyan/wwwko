@@ -8,6 +8,7 @@ class Controller_Welcome extends Controller_Global {
         $a_pages_url = Route::url('pages');
 
         $view = View::factory("home")
+            ->bind('user', $this->user)
             ->bind('members_url', $a_members_url)
             ->bind('pages_url', $a_pages_url);
 
