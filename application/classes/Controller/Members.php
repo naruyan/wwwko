@@ -47,8 +47,19 @@ class Controller_Members extends Controller_Global
         $members = ORM::factory('Member');
 
         $list = $members->where('term', '=', $this->term_num)->find_all();
+
         $a_signup_url = Route::url("members", array(
             'action' => 'signup',
+            'term' => $this->term,
+        ));
+
+        $a_clubsday_url = Route::url("clubsday", array(
+            'action' => 'splash',
+            'term' => $this->term,
+        ));
+
+        $a_mailinglist_url = Route::url("clubsday", array(
+            'action' => 'list',
             'term' => $this->term,
         ));
 
@@ -72,14 +83,26 @@ class Controller_Members extends Controller_Global
             $member_list[] = $member_arr;
         }
 
-        $view = View::factory('members_list')
+        $o_title = Kohana::message('global', 'club_name') . ' ' . 
+            $this->term . ' ' . Kohana::message('members', 'list_title');
+
+        $this->template->page_title = $o_title;
+        $this->template->body_content = View::factory('members_list')
+            ->bind('title', $o_title)
             ->bind('term', $this->term)
             ->bind('member_list', $member_list)
-            ->bind('signup_url', $a_signup_url)
-            ->bind('change_terms_url', $a_change_terms_url)
             ->set('is_exec', $this->user->is_exec());
 
-        $this->response->body($view);
+        $this->template->footer_content = View::factory('members_list_footer')
+            ->bind('term', $this->term)
+            ->bind('signup_url', $a_signup_url)
+            ->bind('clubsday_url', $a_clubsday_url)
+            ->bind('change_terms_url', $a_change_terms_url)
+            ->bind('mailinglist_url', $a_mailinglist_url)
+            ->set('is_exec', $this->user->is_exec());
+
+        $this->session->set('previous_controller', 'members');
+        $this->session->set('previous_param', array('action' => 'list'));
     }
 
     public function action_change_terms()
@@ -89,6 +112,17 @@ class Controller_Members extends Controller_Global
         
         $this->redirect(Route::get("members")->uri(array(
             'action' => 'list',
+            'term' => $a_term,
+        )));
+    }
+
+    public function action_clubs_day()
+    {
+        $u_term = $this->request->post('term');
+        $a_term = urlencode($u_term);
+        
+        $this->redirect(Route::get("clubsday")->uri(array(
+            'action' => 'splash',
             'term' => $a_term,
         )));
     }
@@ -121,20 +155,31 @@ class Controller_Members extends Controller_Global
     {
         $this->session->set('redirect_controller', 'members');
         $this->session->set('redirect_param', array('action' => 'list'));
-        $this->session->set('redirect_param_repeat', array('action' => 'signup'));
+        $this->session->set('redirect_param_repeat', array('action' => 'clubs_day'));
         $a_target = Route::url("members", array(
             'action' => 'signup_sub',
             'term' => $this->term,
         ));
-        $a_back = Route::url($this->session->get('redirect_controller'), 
-                $this->session->get('redirect_param'));
 
-        $view = View::factory('members_signup')
+        $a_back = CM_Route::build_back($this->session, 
+            $this->session->get('redirect_controller'), $this->session->get('redirect_param'));
+
+        if ($this->request->param('repeat'))
+        {
+            $o_repeat = "checked";
+        }
+
+        $o_title = Kohana::message('global', 'club_name') . ' ' . 
+            $this->term . ' ' . Kohana::message('members', 'signup_title');
+        $this->template->page_title = $o_title;
+
+        $this->template->body_content = View::factory('members_signup')
+            ->bind('title', $o_title)
             ->bind('term', $this->term)
             ->bind('target', $a_target)
+            ->bind('repeat', $o_repeat)
+            ->set('is_exec', $this->user->is_exec())
             ->bind('back', $a_back);
-
-        $this->response->body($view);
     }
 
     public function action_signup_sub()
@@ -142,13 +187,13 @@ class Controller_Members extends Controller_Global
         // Process the redirect
         if (!$this->request->post('repeat'))
         {
-            $a_redirect = Route::url($this->session->get_once('redirect_controller'), 
-                $this->session->get('redirect_param'));
+            $a_redirect = CM_Route::build_redirect($this->session, 'members');
+            $this->session->get_once('redirect_param_repeat');
         }
         else
         {
-            $a_redirect = Route::url($this->session->get_once('redirect_controller'), 
-                $this->session->get('redirect_param_repeat'));
+            $a_redirect = CM_Route::build_redirect($this->session, 'members', array(), 'redirect_param_repeat');
+            $this->session->get_once('redirect_param');
         }
 
         if ($this->settings['term'] != $this->term_num && $this->user->is_exec())
@@ -177,18 +222,25 @@ class Controller_Members extends Controller_Global
         {
             $member->save();
             $o_notice = Kohana::message('members', 'signup_success');
+            $o_notice_type = 'success';
         }
         catch (ORM_Validation_Exception $e)
         {
             $o_errors = $e->errors('orm');
-            $o_notice = "<ul><li>" . implode("</li><li>", $o_errors) . "</li></ul>";
+            $o_notice = Kohana::message('members', 'signup_failure') . "\n<ul><li>" . implode("</li><li>", $o_errors) . "</li></ul>";
+            $o_notice_type = 'danger';
         }
 
-        $view = View::factory('redirect')
-            ->bind('redirect', $a_redirect)
-            ->bind('notice', $o_notice);
+        $response = Request::factory(Route::get("redirect")->uri(array(
+            'delay'     => 1,
+        )))
+            ->post('redirect', $a_redirect)
+            ->post('notice', $o_notice)
+            ->post('notice_type', $o_notice_type)
+            ->execute();
 
-        $this->response->body($view);
+        $this->auto_render = FALSE;
+        $this->response->body($response->body());
     }
 
     public function action_edit()
@@ -203,12 +255,18 @@ class Controller_Members extends Controller_Global
             'term' => $this->term,
             ));
             $o_notice = Kohana::message('members', 'edit_fail');
+            $o_notice_type = 'danger';
 
-            $view = View::factory('redirect')
-                ->bind('redirect', $a_redirect)
-                ->bind('notice', $o_notice);
+            $response = Request::factory(Route::get("redirect")->uri(array(
+                'delay'     => 1,
+            )))
+                ->post('redirect', $a_redirect)
+                ->post('notice', $o_notice)
+                ->post('notice_type', $o_notice_type)
+                ->execute();
 
-            $this->response->body($view);
+            $this->auto_render = FALSE;
+            $this->response->body($response->body());
             return;
         }
 
@@ -216,7 +274,7 @@ class Controller_Members extends Controller_Global
         $o_number = $member->number;
         $o_name = $member->name;
         $o_email = $member->email;
-        $o_active = $member->active;
+        $o_active = ($member->active) ? 'checked' : '';
         $o_status = $member->status;
         // TODO Forum Account Integration
         // $o_forum_uid = $member->forum_uid;
@@ -243,10 +301,21 @@ class Controller_Members extends Controller_Global
 
         $this->session->set('redirect_controller', 'members');
         $this->session->set('redirect_param', array('action' => 'list'));
-        $a_back = Route::url($this->session->get('redirect_controller'), 
-            $this->session->get('redirect_param'));
+        $this->session->set('redirect_param_repeat', array(
+            'action' => 'edit',
+            'term' => $o_term,
+            'id' => $u_id,
+        ));
 
-        $view = View::factory('members_edit')
+        $a_back = CM_Route::build_back($this->session, 
+            $this->session->get('redirect_controller'), $this->session->get('redirect_param'));
+
+        $o_title = Kohana::message('global', 'club_name') . ' ' . 
+            $this->term . ' ' . Kohana::message('members', 'edit_title');
+        $this->template->page_title = $o_title;
+
+        $this->template->body_content = View::factory('members_edit')
+            ->bind('title', $o_title)
             ->bind('term', $o_term)
             ->bind('number', $o_number)
             ->bind('name', $o_name)
@@ -257,21 +326,19 @@ class Controller_Members extends Controller_Global
             ->bind('target', $a_target)
             ->bind('delete', $a_delete)
             ->bind('back', $a_back);
-
-        $this->response->body($view);
     }
 
     public function action_edit_sub()
     {
-        // Process the redirect
-        $a_redirect = Route::url($this->session->get('redirect_controller'), 
-            $this->session->get('redirect_param'));
 
         $u_id = $this->request->param('id');
         $member = ORM::factory('Member', $u_id);
 
         if (!$this->user->is_exec() || !$member->loaded())
         {
+            // Process the redirect
+            $a_redirect = CM_Route::build_redirect($this->session, 'members');
+            $this->session->get_once('redirect_param_repeat');
             $o_notice = Kohana::message('members', 'edit_fail');
         }
         else
@@ -294,32 +361,45 @@ class Controller_Members extends Controller_Global
             {
                 $member->save();
                 $o_notice = Kohana::message('members', 'edit_success');
+                $o_notice_type = 'success';
+                // Process the redirect
+                $a_redirect = CM_Route::build_redirect($this->session, 'members');
+                $this->session->get_once('redirect_param_repeat');
             }
             catch (ORM_Validation_Exception $e)
             {
                 $o_errors = $e->errors('orm');
                 $o_notice = "<ul><li>" . implode("</li><li>", $o_errors) . "</li></ul>";
+                $o_notice_type = 'danger';
+                // Process the redirect
+                $a_redirect = CM_Route::build_redirect($this->session, 'members', array(), 'redirect_param_repeat');
+                $this->session->get_once('redirect_param');
             }
         }
 
-        $view = View::factory('redirect')
-            ->bind('redirect', $a_redirect)
-            ->bind('notice', $o_notice);
+        $response = Request::factory(Route::get("redirect")->uri(array(
+            'delay'     => 1,
+        )))
+            ->post('redirect', $a_redirect)
+            ->post('notice', $o_notice)
+            ->post('notice_type', $o_notice_type)
+            ->execute();
 
-        $this->response->body($view);
+        $this->auto_render = FALSE;
+        $this->response->body($response->body());
     }
 
     public function action_delete()
     {
-        // Process the redirect
-        $a_redirect = Route::url($this->session->get('redirect_controller'), 
-            $this->session->get('redirect_param'));
 
         $u_id = $this->request->param('id');
         $member = ORM::factory('Member', $u_id);
 
         if (!$this->user->is_exec() || !$member->loaded())
         {
+            // Process the redirect
+            $a_redirect = CM_Route::build_redirect($this->session, 'members');
+            $this->session->get_once('redirect_param_repeat');
             $o_notice = Kohana::message('members', 'edit_fail');
         }
         else
@@ -328,18 +408,32 @@ class Controller_Members extends Controller_Global
             {
                 $member->delete();
                 $o_notice = Kohana::message('members', 'delete_success');
+                $o_notice_type = 'success';
+                // Process the redirect
+                $a_redirect = CM_Route::build_redirect($this->session, 'members');
+                $this->session->get_once('redirect_param_repeat');
             }
             catch (ORM_Validation_Exception $e)
             {
                 $o_errors = $e->errors('orm');
                 $o_notice = "<ul><li>" . implode("</li><li>", $o_errors) . "</li></ul>";
+                $o_notice_type = 'danger';
+
+                // Process the redirect
+                $a_redirect = CM_Route::build_redirect($this->session, 'members', array(), 'redirect_param_repeat');
+                $this->session->get_once('redirect_param');
             }
         }
 
-        $view = View::factory('redirect')
-            ->bind('redirect', $a_redirect)
-            ->bind('notice', $o_notice);
+        $response = Request::factory(Route::get("redirect")->uri(array(
+            'delay'     => 1,
+        )))
+            ->post('redirect', $a_redirect)
+            ->post('notice', $o_notice)
+            ->post('notice_type', $o_notice_type)
+            ->execute();
 
-        $this->response->body($view);
+        $this->auto_render = FALSE;
+        $this->response->body($response->body());
     }
 } 

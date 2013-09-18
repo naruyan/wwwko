@@ -35,3 +35,45 @@ class CM_Route
 
         return Route::get($controller)->uri($params);
     }
+
+    /**
+     * Builds a routing for a redirect
+     *
+     * @param $session              The session object for the current controller
+     * @param $default_controller   The default controller if no back information is found, default Home Page
+     * @param $default_action       The default action if no back information is found, default Home Page
+     * @param $param_name           Name of param for redirect, default redirect_param
+     * @return url                  The URL for the redirect link
+     */
+    public static function build_redirect($session, $default_controller="welcome", $default_action=array(), $param_name='redirect_param')
+    {
+        if ($session->get('redirect_controller') && $session->get($param_name))
+        {
+            return Route::url($session->get_once('redirect_controller'), $session->get_once($param_name));
+        }
+        else
+        {
+            return Route::url($default_controller, $default_action);
+        }
+    }
+
+    /**
+     * Builds a routing for a back button
+     *
+     * @param $session              The session object for the current controller
+     * @param $default_controller   The default controller if no back information is found, default Home Page
+     * @param $default_action       The default action if no back information is found, default Home Page
+     * @return url                  The URL for the back link
+     */
+    public static function build_back($session, $default_controller="welcome", $default_action=array())
+    {
+        if ($session->get('previous_controller') && $session->get('previous_param'))
+        {
+            return Route::url($session->get_once('previous_controller'), $session->get_once('previous_param'));
+        }
+        else
+        {
+            return Route::url($default_controller, $default_action);
+        }
+    }
+}

@@ -1,14 +1,12 @@
-<html>
-<head>
-<title>CM Members Signup</title>
-<meta http-equiv="refresh" content="3; url=<?php echo $redirect ?> ">
-</head>
-<body>
-<div>
-<?php echo $notice ?>
+<div class="container">
+<div class="alert alert-<?php echo $notice_type ?>">
+<p class="text-center"><?php echo $notice ?></p>
+
+<p class="text-center">><small>
+    <?php echo Kohana::message('global', 'notice_redirect_1') ?>
+    <?php echo $delay ?>
+    <?php echo Kohana::message('global', 'notice_redirect_2') ?>
+    <a href="<?php echo $redirect ?>">here</a>
+</small</p>
 </div>
-</body>
-</html>
-
-
-
+</div>

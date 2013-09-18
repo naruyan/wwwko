@@ -38,13 +38,14 @@ class Model_ForumUser extends Model_Database
      * Initializes the user session from the forum sessions
      * Checks the Cookies to determine if they are consistent with being logged in
      * Then checks the database the validate their contents
-     *
+     * 
+     * @param   Request     $request    Request containing the session information to be used*
      * @return  void
      */
-    public function load()
+    public function load(Request $request)
     {
         // Attempt to get the Session ID
-        $u_sid = $_COOKIE['sid'];
+        $u_sid = $request->cookie('sid');
         $this->_groups = array();
 
         if ($u_sid)
@@ -54,7 +55,7 @@ class Model_ForumUser extends Model_Database
             
             if ($result->count() == 1)
             {
-                $u_mybbuser = $_COOKIE['mybbuser'];
+                $u_mybbuser = $request->cookie('mybbuser');
                 if ($u_mybbuser)
                 {
                     $u_logon = explode("_", $u_mybbuser, 2);

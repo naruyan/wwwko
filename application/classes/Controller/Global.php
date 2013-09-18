@@ -7,7 +7,7 @@
  * @category    Controller
  * @author      Jonathan Lai
  */
-abstract class Controller_Global extends Controller 
+abstract class Controller_Global extends Controller_Template
 {
     /**
      * @var User info
@@ -29,14 +29,26 @@ abstract class Controller_Global extends Controller
      */
     public function before()
     {
+        parent::before();
+
+        $this->template
+            ->set('page_title', '')
+            ->set('meta_content', '')
+            ->set('css_content', '')
+            ->set('head_content', '')
+            ->set('header_content', '')
+            ->set('body_content', '')
+            ->set('footer_content', '')
+            ->set('script_content', '');
+
         $this->user = Model::factory('ForumUser');
-        $this->user->load();
+        $this->user->load($this->request);
 
         if (Kohana::$environment == Kohana::DEVELOPMENT && !$this->user->is_logged_in())
         {
             $debug = Kohana::$config->load('debug');
             $debug_user = $debug->get('userid');
-            $debug_passkey = $debug->get('passkey')
+            $debug_passkey = $debug->get('passkey');
             $this->user->debug_user($debug_user[$debug->get('login_level')], 
                 $debug_passkey[$debug->get('login_level')]);
         }        

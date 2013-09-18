@@ -143,16 +143,28 @@ Kohana::modules(array(
  * Set the routes. Each route must have a minimum of a name, a URI and a set of
  * defaults for the URI.
  */
-Route::set('members', 'members(/<action>(/<term>(/<id>)))')
+Route::set('members', 'members(/<action>(/<term>(/<id>(/<repeat>))))')
     ->defaults(array(
         'controller'    => 'members',
         'action'        => 'list',
+    ));
+
+Route::set('clubsday', 'clubsday(/<action>(/<term>(/<repeat>)))')
+    ->defaults(array(
+        'controller'    => 'clubsday',
+        'action'        => 'splash',
     ));
 
 Route::set('pages', 'pages(/<name>(/<action>))')
     ->defaults(array(
         'controller'    => 'pages',
         'action'        => 'view',
+    ));
+
+Route::set('redirect', 'redirect(/<delay>)')
+    ->defaults(array(
+        'controller'    => 'redirect',
+        'action'        => 'redirect',
     ));
 
 Route::set('default', '(<controller>(/<action>(/<id>)))')
