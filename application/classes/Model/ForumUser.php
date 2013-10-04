@@ -77,7 +77,7 @@ class Model_ForumUser extends Model_Database
         if ($u_mybbuser)
         {
             $u_logon = explode("_", $u_mybbuser, 2);
-            $valid = $this->load_user(intval($u_logon[0]), Database::instance('forum')->escape($u_logon[1]));
+            $valid = $this->load_user(intval($u_logon[0]), $u_logon[1]);
             if ($valid)
             {
                 return;
