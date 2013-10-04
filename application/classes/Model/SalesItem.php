@@ -9,7 +9,7 @@
  */
 class Model_SalesItem extends ORM
 {
-    protected $_table_name = 'sales_items'
+    protected $_table_name = 'sales_items';
     protected $_belongs_to = array(
         'sale' => array(
             'model'         => 'Sale',

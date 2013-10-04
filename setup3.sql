@@ -1,0 +1,1 @@
+ALTER TABLE cm_sales ADD date DATETIME NOT NULL;

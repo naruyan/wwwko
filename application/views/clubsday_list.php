@@ -6,7 +6,7 @@
     </tr>
 <?php foreach ($member_list as $member) { ?>
     <tr>
-        <td><?php echo $member['email'] ?></td>
+        <td><?php echo $member ?></td>
     </tr>
 <?php } ?>
 </table>

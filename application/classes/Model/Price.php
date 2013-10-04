@@ -9,7 +9,7 @@
  */
 class Model_Price extends ORM
 {
-    protected $_belongs_to = array(
+    protected $_has_one = array(
         'inventory' => array(
             'model'         => 'Inventory',
             'foreign_key'   => 'inventory_id',
@@ -23,6 +23,4 @@ class Model_Price extends ORM
         ),
     );
 }
-
-
 

@@ -39,6 +39,8 @@ class Controller_Clubsday extends Controller_Global
         
         $this->term_num = $term;
         $this->term = CM_DB::num_to_term($term);
+
+        $this->template_opts['clubsday_active'] = true;;
     }
 
     public function action_splash()
@@ -84,7 +86,7 @@ class Controller_Clubsday extends Controller_Global
         $member_list = array();
         foreach ($list as $member)
         {
-            $member_list[] = $member["email"];
+            $member_list[] = htmlentities($member->email);
         }
 
         $o_title = Kohana::message('global', 'club_name') . ' ' . 

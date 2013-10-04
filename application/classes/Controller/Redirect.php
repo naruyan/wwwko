@@ -16,7 +16,7 @@ class Controller_Redirect extends Controller_Global
         $o_notice = $this->request->post('notice');
         $o_notice_type = htmlentities($this->request->post('notice_type'));
 
-        if ($this->request->is_initial())
+        if ($this->request->is_initial() || $o_notice_type == 'security')
         {
             $a_redirect = Route::get("default")->uri();
             $o_notice = Kohana::message('security', 'insufficient_permissions');

@@ -47,7 +47,8 @@ class Model_ForumUser extends Model_Database
         // Attempt to get the Session ID
         $u_sid = $request->cookie('sid');
         $this->_groups = array();
-
+        
+        /* Disable Session Checking as MyBB doesn't seem to be consistent with giving a sid
         if ($u_sid)
         {
             // Attempt to load the session from the database
@@ -69,6 +70,17 @@ class Model_ForumUser extends Model_Database
                         }
                     }
                 }
+            }
+        }*/
+
+        $u_mybbuser = $request->cookie('mybbuser');
+        if ($u_mybbuser)
+        {
+            $u_logon = explode("_", $u_mybbuser, 2);
+            $valid = $this->load_user(intval($u_logon[0]), Database::instance('forum')->escape($u_logon[1]));
+            if ($valid)
+            {
+                return;
             }
         }
 

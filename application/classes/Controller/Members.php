@@ -40,6 +40,8 @@ class Controller_Members extends Controller_Global
         
         $this->term_num = $term;
         $this->term = CM_DB::num_to_term($term);
+
+        $this->template_opts['members_active'] = true;
     }
 
 	public function action_list()
@@ -270,10 +272,10 @@ class Controller_Members extends Controller_Global
             return;
         }
 
-        $o_term = $member->term;
-        $o_number = $member->number;
-        $o_name = $member->name;
-        $o_email = $member->email;
+        $o_term = htmlentities($member->term);
+        $o_number = htmlentities($member->number);
+        $o_name = htmlentities($member->name);
+        $o_email = htmlentities($member->email);
         $o_active = ($member->active) ? 'checked' : '';
         $o_status = $member->status;
         // TODO Forum Account Integration
@@ -330,7 +332,6 @@ class Controller_Members extends Controller_Global
 
     public function action_edit_sub()
     {
-
         $u_id = $this->request->param('id');
         $member = ORM::factory('Member', $u_id);
 
@@ -340,6 +341,7 @@ class Controller_Members extends Controller_Global
             $a_redirect = CM_Route::build_redirect($this->session, 'members');
             $this->session->get_once('redirect_param_repeat');
             $o_notice = Kohana::message('members', 'edit_fail');
+            $o_notice_type = 'danger';
         }
         else
         {
@@ -391,7 +393,6 @@ class Controller_Members extends Controller_Global
 
     public function action_delete()
     {
-
         $u_id = $this->request->param('id');
         $member = ORM::factory('Member', $u_id);
 

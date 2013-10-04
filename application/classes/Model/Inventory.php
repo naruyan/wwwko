@@ -20,6 +20,9 @@ class Model_Inventory extends ORM
             'model'         => 'Item',
             'foreign_key'   => 'inventory_id',
         ),
+    );
+
+    protected $_has_one = array(
         'prices' => array(
             'model'         => 'Price',
             'foreign_key'   => 'inventory_id',

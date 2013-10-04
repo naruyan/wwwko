@@ -155,6 +155,18 @@ Route::set('clubsday', 'clubsday(/<action>(/<term>(/<repeat>)))')
         'action'        => 'splash',
     ));
 
+Route::set('inventory', 'inventory(/<action>(/<id>))')
+    ->defaults(array(
+        'controller'    => 'inventory',
+        'action'        => 'list',
+    ));
+
+Route::set('sales', 'sales(/<action>(/<id>))')
+    ->defaults(array(
+        'controller'    => 'sales',
+        'action'        => 'list',
+    ));
+
 Route::set('pages', 'pages(/<name>(/<action>))')
     ->defaults(array(
         'controller'    => 'pages',
