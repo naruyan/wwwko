@@ -197,8 +197,8 @@ class Controller_Sales extends Controller_Global
             $o_notice = Kohana::message('sales', 'add_success');
             $o_notice_type = 'success';
             // Process the redirect
-            $a_redirect = CM_Route::build_redirect($this->session, 'sales');
-            $this->session->get_once('redirect_param_repeat');
+            $a_redirect = CM_Route::build_redirect($this->session, 'sales', array(), 'redirect_param_repeat');
+            $this->session->get_once('redirect_param');
         }
         catch (ORM_Validation_Exception $e)
         {
